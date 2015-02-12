@@ -32,6 +32,30 @@ module Barby
           bars = xdim_odd ? bars_to_rects : bars_to_path
         end
 
+        numbers = ''
+
+
+
+        if opts[:show_code].present?
+
+          bottom = svg_height(opts) - bmargin
+
+          numbers = "<g id=\"code_box\" fill=\"white\">
+<rect x=\"#{lmargin + (xdim * 10)}\" y=\"#{bottom - xdim * 5}\" width=\"#{xdim * 35}px\" height=\"#{xdim * 7}px\"></rect>
+<rect x=\"#{lmargin + (xdim * 8) + (xdim * 7 * 6)}\" y=\"#{bottom - xdim * 5}\" width=\"#{xdim * 35}px\" height=\"#{xdim * 7}px\"></rect>
+</g>
+<g id=\"code_text_checksum\" font-family=\"Verdana\" font-size=\"#{xdim * 9}\" >
+<text text-anchor=\"middle\" x=\"#{(lmargin.to_f / 2).ceil}\" y=\"#{bottom + xdim * 7}\">#{barcode.to_s.first}</text>
+<text text-anchor=\"middle\" x=\"#{svg_width(opts) - (lmargin.to_f / 2).ceil}\" y=\"#{bottom + xdim * 7}\">#{barcode.to_s.last}</text>
+</g>
+<g id=\"code_text\" font-family=\"Verdana\" font-size=\"#{xdim * 9 + (xdim.to_f / 9).ceil}\" >
+<text text-anchor=\"middle\" x=\"#{lmargin + (xdim * 27)}\" y=\"#{bottom + xdim * 3}\">#{barcode.to_s.slice(1,5)}</text>
+<text text-anchor=\"middle\" x=\"#{lmargin + (xdim * 68)}\" y=\"#{bottom + xdim * 3}\">#{barcode.to_s.slice(6,5)}</text>
+
+</g>"
+
+        end
+
         <<-"EOT"
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="#{svg_width(opts)}px" height="#{svg_height(opts)}px" viewBox="0 0 #{svg_width(opts)} #{svg_height(opts)}" version="1.1">
@@ -40,7 +64,7 @@ module Barby
 <rect x="0" y="0" width="#{full_width}px" height="#{full_height}px" fill="white" />
 <g id="barcode" fill="black">
 #{bars}
-</g></g>
+</g>#{numbers}</g>
 </svg>
 EOT
       end
@@ -158,11 +182,11 @@ EOT
     end
 
     def tmargin
-      @tmargin || _ymargin
+      ((@tmargin || _ymargin).to_f / 3 * 2).ceil
     end
 
     def bmargin
-      @bmargin || _ymargin
+      (( @bmargin || _ymargin).to_f / 3 * 4).ceil
     end
 
     def xmargin
@@ -210,7 +234,7 @@ EOT
     end
 
     def _margin
-      @margin || 10
+      @margin || xdim * 6
     end
 
     #Escape XML special characters <, & and >
